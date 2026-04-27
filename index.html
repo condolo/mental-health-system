@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Embracing the Journey Within</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <p class="eyebrow">Daily Mental Wellness Journal</p>
+        <h1>Embracing the Journey Within</h1>
+        <p class="subtitle">
+          A calm, guided check-in to help you understand your emotions, reduce stress,
+          and build positive habits.
+        </p>
+      </header>
+
+      <form id="dailyCheckIn" class="card-grid">
+        <section class="card">
+          <h2>1) Mood Tracker</h2>
+          <label for="mood">How do you feel today?</label>
+          <select id="mood" name="mood" required>
+            <option value="">Choose one...</option>
+            <option>Happy</option>
+            <option>Calm</option>
+            <option>Grateful</option>
+            <option>Anxious</option>
+            <option>Sad</option>
+            <option>Overwhelmed</option>
+            <option>Hopeful</option>
+          </select>
+        </section>
+
+        <section class="card">
+          <h2>2) Gratitude Log</h2>
+          <p>Write 2–3 things you are grateful for today.</p>
+          <textarea name="gratitude" rows="4" placeholder="I am grateful for..."></textarea>
+        </section>
+
+        <section class="card">
+          <h2>3) Daily Affirmations</h2>
+          <label for="affirmation">Complete “I am...”</label>
+          <input id="affirmation" name="affirmation" type="text" placeholder="I am resilient and growing." />
+        </section>
+
+        <section class="card">
+          <h2>4) Self-Care Checklist</h2>
+          <div class="checklist">
+            <label><input type="checkbox" name="selfcare" value="Water" /> Drank enough water</label>
+            <label><input type="checkbox" name="selfcare" value="Sleep" /> Slept well</label>
+            <label><input type="checkbox" name="selfcare" value="Movement" /> Moved my body</label>
+            <label><input type="checkbox" name="selfcare" value="Reflection" /> Prayer / reflection</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>5) Stress Management</h2>
+          <label for="stressLevel">Stress level (1–10): <span id="stressValue">5</span></label>
+          <input id="stressLevel" name="stressLevel" type="range" min="1" max="10" value="5" />
+
+          <label for="stressSource">Source of stress</label>
+          <input id="stressSource" name="stressSource" type="text" placeholder="What is causing stress today?" />
+
+          <label for="copingMethod">Coping method used</label>
+          <input id="copingMethod" name="copingMethod" type="text" placeholder="Breathing, walk, talking to friend..." />
+
+          <label for="afterFeeling">How did you feel after?</label>
+          <input id="afterFeeling" name="afterFeeling" type="text" placeholder="More calm, still tense, etc." />
+        </section>
+
+        <section class="card">
+          <h2>6) Reflection</h2>
+          <textarea name="reflection" rows="4" placeholder="One key lesson, thought, or proud moment..."></textarea>
+        </section>
+
+        <section class="card">
+          <h2>7) Daily Intention</h2>
+          <input name="intention" type="text" placeholder="Tomorrow I will focus on..." />
+        </section>
+
+        <section class="card">
+          <h2>Optional Faith Reflection</h2>
+          <textarea name="faithReflection" rows="3" placeholder="Prayer, scripture, or spiritual note (optional)..."></textarea>
+        </section>
+      </form>
+
+      <div class="actions">
+        <button id="saveBtn" type="button">Save Today’s Check-In</button>
+        <button id="clearBtn" type="button" class="ghost">Clear Form</button>
+      </div>
+
+      <section class="card output" id="savedSummary" aria-live="polite">
+        <h2>Today’s Summary</h2>
+        <p>Your saved reflection will appear here.</p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
