@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1B4332" />
+  <title>Embracing The Journey Within</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══════════════════════════════════════
+       SPLASH SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="splash">
+    <div class="splash-particles">
+      <span class="particle p1">🌸</span>
+      <span class="particle p2">🌺</span>
+      <span class="particle p3">🌼</span>
+      <span class="particle p4">💜</span>
+      <span class="particle p5">🌸</span>
+      <span class="particle p6">🌻</span>
+      <span class="particle p7">🌷</span>
+      <span class="particle p8">✨</span>
+      <span class="particle p9">🌺</span>
+      <span class="particle p10">🌸</span>
+    </div>
+    <div class="splash-glow top-glow"></div>
+    <div class="splash-glow bottom-glow"></div>
+    <div class="splash-content">
+      <div class="splash-badge">Mental Wellness Journal</div>
+      <div class="splash-icon-ring">
+        <span class="splash-main-icon">🧠</span>
+      </div>
+      <h1 class="splash-title">
+        Embracing<br/><em>The Journey</em><br/>Within
+      </h1>
+      <p class="splash-quote">
+        "When we understand our mind,<br/>we empower our life."
+      </p>
+      <p class="splash-sub">Your daily mental wellness companion</p>
+      <button class="btn-splash" onclick="startApp()">
+        <span>Begin Today's Journey</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN APP
+  ═══════════════════════════════════════ -->
+  <div id="main" class="hidden">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <button class="hdr-btn" onclick="toggleMenu()" aria-label="Menu">
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+      </button>
+      <div class="hdr-brand">
+        <span class="brand-leaf">🌿</span>
+        <span class="brand-name">Journey Within</span>
+      </div>
+      <div class="hdr-progress" title="Today's progress">
+        <svg class="prog-ring" viewBox="0 0 40 40">
+          <circle class="ring-track" cx="20" cy="20" r="16"/>
+          <circle class="ring-fill" id="ringFill" cx="20" cy="20" r="16"/>
+        </svg>
+        <span class="prog-pct" id="progPct">0%</span>
+      </div>
+    </header>
+
+    <!-- SLIDE MENU -->
+    <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
+    <nav id="sideMenu" class="side-menu">
+      <div class="menu-top">
+        <div class="menu-brand">
+          <span>🧠</span>
+          <span>Journey Within</span>
+        </div>
+        <button class="menu-close" onclick="closeMenu()">✕</button>
+      </div>
+      <div class="menu-links">
+        <a class="menu-link" onclick="goTo('dashboard')"><span>🏠</span>Home</a>
+        <a class="menu-link" onclick="goTo('mood')"><span>💭</span>Mood Check-In</a>
+        <a class="menu-link" onclick="goTo('gratitude')"><span>🌿</span>Gratitude Garden</a>
+        <a class="menu-link" onclick="goTo('affirmations')"><span>✨</span>Affirmations</a>
+        <a class="menu-link" onclick="goTo('selfcare')"><span>🌟</span>Self-Care</a>
+        <a class="menu-link" onclick="goTo('stress')"><span>🌊</span>Stress & Coping</a>
+        <a class="menu-link" onclick="goTo('reflection')"><span>📝</span>My Reflection</a>
+        <a class="menu-link" onclick="goTo('history')"><span>📅</span>My History</a>
+      </div>
+      <p class="menu-footer">"Small steps lead to big changes."</p>
+    </nav>
+
+    <!-- ─── SECTIONS ─── -->
+    <div id="sectionsWrap">
+
+      <!-- DASHBOARD -->
+      <section id="sec-dashboard" class="sec active">
+        <div class="hero-banner">
+          <div class="hero-flowers">
+            <span>🌸</span><span>🌺</span><span>🌼</span>
+          </div>
+          <p class="hero-greeting" id="greeting">Good Morning</p>
+          <h2 class="hero-date" id="heroDate">Monday, April 28</h2>
+          <p class="hero-msg">How are you showing up for yourself today?</p>
+        </div>
+
+        <div class="quote-card">
+          <span class="quote-icon">💭</span>
+          <p class="quote-text" id="quoteText">Loading...</p>
+        </div>
+
+        <div class="stats-row" id="statsRow"></div>
+
+        <div class="steps-block">
+          <p class="steps-heading">Today's Wellness Journey</p>
+          <div class="steps-grid" id="stepsGrid"></div>
+        </div>
+
+        <button class="btn-primary full-btn" onclick="goTo('mood')">
+          Start Your Check-In &nbsp;🌱
+        </button>
+      </section>
+
+      <!-- MOOD -->
+      <section id="sec-mood" class="sec">
+        <div class="sec-hero mood-palette">
+          <span class="sec-icon">💭</span>
+          <h2>How Are You Feeling?</h2>
+          <p>Take a breath and tune in to your emotions right now</p>
+        </div>
+
+        <div class="card">
+          <p class="card-lbl">Select your mood</p>
+          <div class="mood-grid" id="moodGrid"></div>
+        </div>
+
+        <div class="card" id="moodNoteCard" style="display:none">
+          <label class="card-lbl">Tell me more (optional)</label>
+          <textarea class="textarea" id="moodNote" rows="3"
+            placeholder="What's on your heart right now?"></textarea>
+        </div>
+
+        <div class="sec-nav">
+          <button class="btn-back" onclick="goTo('dashboard')">← Back</button>
+          <button class="btn-next" onclick="advance('mood')">Gratitude →</button>
+        </div>
+      </section>
+
+      <!-- GRATITUDE -->
+      <section id="sec-gratitude" class="sec">
+        <div class="sec-hero green-palette">
+          <span class="sec-icon">🌿</span>
+          <h2>Gratitude Garden</h2>
+          <p>Water your mind — name 3 things you're grateful for</p>
+        </div>
+
+        <div class="grat-cards">
+          <div class="card grat-card">
+            <span class="grat-num">🌸 One</span>
+            <input class="input-line" id="grat1" type="text" placeholder="I am grateful for…"/>
+          </div>
+          <div class="card grat-card">
+            <span class="grat-num">🌺 Two</span>
+            <input class="input-line" id="grat2" type="text" placeholder="I appreciate…"/>
+          </div>
+          <div class="card grat-card">
+            <span class="grat-num">🌼 Three</span>
+            <input class="input-line" id="grat3" type="text" placeholder="Today I'm thankful for…"/>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <span>💡</span>
+          <span>Gratitude literally rewires your brain to notice the good. Even the smallest things count!</span>
+        </div>
+
+        <div class="sec-nav">
+          <button class="btn-back" onclick="goTo('mood')">← Back</button>
+          <button class="btn-next" onclick="advance('gratitude')">Affirmations →</button>
+        </div>
+      </section>
+
+      <!-- AFFIRMATIONS -->
+      <section id="sec-affirmations" class="sec">
+        <div class="sec-hero purple-palette">
+          <span class="sec-icon">✨</span>
+          <h2>I Am…</h2>
+          <p>Choose the truths you need to hear today</p>
+        </div>
+
+        <div class="card">
+          <p class="card-lbl">Pick what resonates with you</p>
+          <div class="affirm-grid" id="affirmGrid"></div>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">Write your own affirmation</label>
+          <div class="affirm-custom">
+            <span class="affirm-pre">I am…</span>
+            <input class="input-line" id="customAffirm" type="text"
+              placeholder="…worthy of peace, love and joy"/>
+          </div>
+        </div>
+
+        <div class="sec-nav">
+          <button class="btn-back" onclick="goTo('gratitude')">← Back</button>
+          <button class="btn-next" onclick="advance('affirmations')">Self-Care →</button>
+        </div>
+      </section>
+
+      <!-- SELF-CARE -->
+      <section id="sec-selfcare" class="sec">
+        <div class="sec-hero teal-palette">
+          <span class="sec-icon">🌟</span>
+          <h2>Self-Care Check</h2>
+          <p>How well did you care for yourself today?</p>
+        </div>
+
+        <div class="card">
+          <p class="card-lbl">Check what you've done for yourself</p>
+          <div class="sc-list" id="scList"></div>
+        </div>
+
+        <div class="sc-score-card">
+          <p class="sc-score-lbl">Self-Care Score</p>
+          <p class="sc-score-num" id="scScore">0 / 8</p>
+          <div class="sc-bar-wrap">
+            <div class="sc-bar" id="scBar"></div>
+          </div>
+          <p class="sc-msg" id="scMsg">Every step counts 💚</p>
+        </div>
+
+        <div class="sec-nav">
+          <button class="btn-back" onclick="goTo('affirmations')">← Back</button>
+          <button class="btn-next" onclick="advance('selfcare')">Stress &amp; Coping →</button>
+        </div>
+      </section>
+
+      <!-- STRESS -->
+      <section id="sec-stress" class="sec">
+        <div class="sec-hero blue-palette">
+          <span class="sec-icon">🌊</span>
+          <h2>Stress &amp; Coping</h2>
+          <p>Understanding your stress is the first step to mastering it</p>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">My stress level today</label>
+          <div class="slider-wrap">
+            <input type="range" class="stress-slider" id="stressSlider"
+              min="1" max="10" value="5" oninput="onStress(this.value)"/>
+            <div class="slider-labels">
+              <span>😌 Low</span><span>😐 Mid</span><span>😰 High</span>
+            </div>
+            <div class="stress-display">
+              <span class="stress-num" id="stressNum">5</span>
+              <span class="stress-lbl" id="stressLbl">Moderate</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">What's causing your stress?</label>
+          <textarea class="textarea" id="stressSource" rows="2"
+            placeholder="Work, health, relationships, finances…"></textarea>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">How did you cope?</label>
+          <div class="coping-tags" id="copingTags"></div>
+          <textarea class="textarea mt-s" id="copingNote" rows="2"
+            placeholder="Describe what helped you…"></textarea>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">How do you feel after coping?</label>
+          <textarea class="textarea" id="afterCoping" rows="2"
+            placeholder="I feel more… / I still feel…"></textarea>
+        </div>
+
+        <!-- Breathing exercise (shown when stress ≥ 7) -->
+        <div class="breath-box" id="breathBox" style="display:none">
+          <p class="breath-title">🫁 Quick Breathing Exercise</p>
+          <div class="breath-circle" id="breathCircle">
+            <span id="breathText">Tap to Start</span>
+          </div>
+          <p class="breath-hint" id="breathHint">4-7-8 breathing reduces anxiety in minutes</p>
+        </div>
+
+        <div class="sec-nav">
+          <button class="btn-back" onclick="goTo('selfcare')">← Back</button>
+          <button class="btn-next" onclick="advance('stress')">Reflection →</button>
+        </div>
+      </section>
+
+      <!-- REFLECTION -->
+      <section id="sec-reflection" class="sec">
+        <div class="sec-hero plum-palette">
+          <span class="sec-icon">📝</span>
+          <h2>My Reflection</h2>
+          <p>Pause. Breathe. What does today want you to know?</p>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">Key thought, lesson or proud moment today</label>
+          <textarea class="textarea journal-font" id="keyLesson" rows="4"
+            placeholder="Today I learned… / I'm proud of… / I realized…"
+            oninput="wordCount(this,'wc1')"></textarea>
+          <p class="wc" id="wc1">0 words</p>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">My intention for tomorrow</label>
+          <p class="card-sub">Tomorrow, I will…</p>
+          <textarea class="textarea" id="intention" rows="3"
+            placeholder="…focus on, take care of, let go of…"
+            oninput="wordCount(this,'wc2')"></textarea>
+          <p class="wc" id="wc2">0 words</p>
+        </div>
+
+        <div class="card">
+          <label class="card-lbl">One word to describe today</label>
+          <input class="input-line center" id="dayWord" type="text" maxlength="30"
+            placeholder="e.g. Resilient · Growing · Peaceful · Hopeful"/>
+        </div>
+
+        <div class="sec-nav">
+          <button class="btn-back" onclick="goTo('stress')">← Back</button>
+          <button class="btn-complete" onclick="finish()">
+            Complete Check-In &nbsp;🎉
+          </button>
+        </div>
+      </section>
+
+      <!-- COMPLETE -->
+      <section id="sec-complete" class="sec">
+        <div id="confettiStage"></div>
+        <div class="complete-wrap">
+          <div class="complete-star">🌟</div>
+          <h2 class="complete-title">You Did It!</h2>
+          <p class="complete-sub">
+            Your check-in is complete.<br/>
+            You showed up for yourself — that is everything.
+          </p>
+          <div class="complete-summary" id="completeSummary"></div>
+          <div class="complete-quote">
+            <p>"You are doing better than you think.<br/>Keep going. Keep growing."</p>
+          </div>
+          <div class="complete-btns">
+            <button class="btn-primary" onclick="goTo('dashboard')">🏠 Home</button>
+            <button class="btn-outline" onclick="goTo('history')">📅 History</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="sec-history" class="sec">
+        <div class="sec-hero green-palette">
+          <span class="sec-icon">📅</span>
+          <h2>My Journey</h2>
+          <p>Every entry is proof you chose yourself</p>
+        </div>
+        <div id="historyList"></div>
+        <div class="sec-nav single">
+          <button class="btn-back" onclick="goTo('dashboard')">← Back to Home</button>
+        </div>
+      </section>
+
+    </div><!-- /sectionsWrap -->
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="goTo('dashboard')" data-s="dashboard">
+        <span class="nav-ico">🏠</span>
+        <span class="nav-lbl">Home</span>
+      </button>
+      <button class="nav-item" onclick="goTo('mood')" data-s="mood">
+        <span class="nav-ico">💭</span>
+        <span class="nav-lbl">Mood</span>
+      </button>
+      <button class="nav-item" onclick="goTo('selfcare')" data-s="selfcare">
+        <span class="nav-ico">🌟</span>
+        <span class="nav-lbl">Care</span>
+      </button>
+      <button class="nav-item" onclick="goTo('reflection')" data-s="reflection">
+        <span class="nav-ico">📝</span>
+        <span class="nav-lbl">Reflect</span>
+      </button>
+      <button class="nav-item" onclick="goTo('history')" data-s="history">
+        <span class="nav-ico">📅</span>
+        <span class="nav-lbl">Journal</span>
+      </button>
+    </nav>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script src="app.js"></script>
+</body>
+</html>
