@@ -1,0 +1,12 @@
+{
+  "name": "mental-health-app",
+  "version": "1.0.0",
+  "description": "Embracing The Journey Within — Daily Mental Wellness Journal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
