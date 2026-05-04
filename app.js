@@ -35,14 +35,16 @@ const AFFIRMATIONS = [
 ];
 
 const SELFCARE = [
-  { emoji:'💧', label:'Drank enough water'       },
-  { emoji:'😴', label:'Got enough sleep'          },
-  { emoji:'🚶', label:'Moved my body'             },
-  { emoji:'🙏', label:'Prayer / Meditation'       },
-  { emoji:'🍎', label:'Ate nourishing food'       },
-  { emoji:'💊', label:'Took my medication'        },
-  { emoji:'📵', label:'Limited screen time'       },
-  { emoji:'🤝', label:'Connected with someone'    },
+  { emoji:'💧', label:'Drank enough water'          },
+  { emoji:'😴', label:'Got enough sleep'             },
+  { emoji:'🚶', label:'Moved my body'                },
+  { emoji:'🙏', label:'Prayer / Meditation'          },
+  { emoji:'🍎', label:'Ate nourishing food'          },
+  { emoji:'💊', label:'Took my medication'           },
+  { emoji:'📵', label:'Limited screen time'          },
+  { emoji:'🤝', label:'Connected with someone'       },
+  { emoji:'🎉', label:'Did something I enjoy'        },
+  { emoji:'✏️',  label:'Others', custom: true        },
 ];
 
 const COPING = [
@@ -65,24 +67,49 @@ const STRESS_MAP = {
 };
 
 const QUOTES = [
+  // — Hope in the dark —
+  'It may look like everything is over. Hold on. There is light at the end of the tunnel.',
+  'You have walked through fire before — and you came out the other side. You will again.',
+  'The night is always darkest just before the dawn. Morning is coming.',
+  'Even the longest storm must end. Your sky is clearing, even if you can\'t see it yet.',
+  'When you feel like giving up, remember why you held on for so long.',
+  'What feels like the end is often just a painful, necessary turning point.',
+  'You are still here. That alone is proof of your strength.',
+  'Rock bottom became the foundation on which I rebuilt my life.',
+  'Don\'t give up on yourself. The best chapters are still unwritten.',
+  'Some days the bravest thing you can do is simply not quit.',
+
+  // — Healing & self-worth —
   'You don\'t have to have it all figured out to move forward.',
   'Your feelings are valid. Your healing is possible.',
   'Progress is progress, no matter how small it seems.',
-  'Be gentle with yourself — you are a child of the universe.',
-  'Every storm runs out of rain. This one will too.',
+  'Be gentle with yourself — you are still becoming.',
+  'Healing is not linear. Every step — even backward — is part of the journey.',
   'You are braver than you believe and stronger than you know.',
   'Taking care of yourself is one of the greatest acts of love.',
   'Your mental health matters just as much as your physical health.',
-  'Breathe. You\'ve survived every hard day so far.',
+  'Breathe. You have survived every hard day so far — that is 100%.',
   'Small steps every day lead to extraordinary change.',
-  'It\'s okay to not be okay. What matters is you don\'t stay there.',
+  'It\'s okay to not be okay. What matters is you don\'t stay there alone.',
   'Rest is productive. Healing is progress.',
-  'You are not your thoughts — you are the one who observes them.',
+  'You are not your thoughts — you are the one who notices them.',
   'Your worth is not measured by your productivity.',
   'Every new day is a new beginning. Start again, gently.',
-  'The fact that you\'re trying is already something beautiful.',
-  'You deserve the same compassion you give to others.',
+  'The fact that you\'re still trying is already something beautiful.',
+  'You deserve the same compassion you so freely give to others.',
   'Showing up for yourself today is an act of courage.',
+
+  // — Growth & becoming —
+  'You are not the same person you were a year ago. That is growth.',
+  'Some of the most beautiful people in the world were built through struggle.',
+  'Your story is not over. Turn the page.',
+  'Everything you are going through is preparing you for everything you asked for.',
+  'The person you are becoming is worth every hard moment.',
+  'Pain is not permanent. But the strength you gain from it is.',
+  'You were not made to just survive — you were made to flourish.',
+  'Every storm you survive makes the next rainbow more beautiful.',
+  'Don\'t rush your healing. Great things take time.',
+  'You are enough. You have always been enough.',
 ];
 
 const STEPS = [
@@ -300,13 +327,28 @@ function buildSCList() {
       <span class="sc-ico">${item.emoji}</span>
       <span class="sc-txt">${item.label}</span>
     </div>
+    ${item.custom ? `
+    <div class="sc-other-wrap" id="scOtherWrap" style="display:none">
+      <input class="input-line sc-other-input" id="scOtherInput" type="text"
+        placeholder="What else did you do for yourself today?" onclick="event.stopPropagation()"/>
+    </div>` : ''}
   `).join('');
 }
 
 function toggleSC(i) {
   const el = document.querySelector(`.sc-item[data-i="${i}"]`);
-  if (checkedSC.has(i)) { checkedSC.delete(i); el.classList.remove('checked'); }
-  else                  { checkedSC.add(i);    el.classList.add('checked');    }
+  if (checkedSC.has(i)) {
+    checkedSC.delete(i);
+    el.classList.remove('checked');
+  } else {
+    checkedSC.add(i);
+    el.classList.add('checked');
+  }
+  // Show/hide the "Others" free-text field
+  if (SELFCARE[i].custom) {
+    const wrap = document.getElementById('scOtherWrap');
+    if (wrap) wrap.style.display = checkedSC.has(i) ? 'block' : 'none';
+  }
   refreshSCScore();
 }
 
@@ -416,6 +458,7 @@ function saveSection(id) {
     case 'selfcare':
       today.selfcare      = [...checkedSC].map(i => SELFCARE[i]);
       today.selfcareCount = checkedSC.size;
+      today.scOther       = (document.getElementById('scOtherInput') || {}).value || '';
       break;
 
     case 'stress':

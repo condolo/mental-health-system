@@ -708,6 +708,16 @@ html, body {
 }
 .sc-msg { font-size: 0.8rem; color: var(--text-muted); }
 
+/* "Others" free-text field */
+.sc-other-wrap {
+  margin: 0 0 0.4rem 2.75rem;
+  animation: secIn 0.25s var(--ease) both;
+}
+.sc-other-input {
+  font-size: 0.85rem;
+  padding-bottom: 0.4rem;
+}
+
 
 /* ══════════════════════════════════════════════
    STRESS
