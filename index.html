@@ -64,6 +64,19 @@
         <button type="submit" class="btn-auth" id="registerBtn">Create Account →</button>
       </form>
 
+      <!-- Guest divider -->
+      <div class="auth-divider"><span>or</span></div>
+
+      <!-- Guest form -->
+      <form id="guestForm" class="auth-form" onsubmit="handleGuest(event)">
+        <div class="auth-field">
+          <label>Your First Name</label>
+          <input type="text" id="guestName" placeholder="e.g. Sarah" required maxlength="40" />
+        </div>
+        <button type="submit" class="btn-guest">Continue as Guest →</button>
+        <p class="guest-note">No account needed · Your journal stays on this device</p>
+      </form>
+
       <p class="auth-privacy">🔒 Your journal entries are completely private — no one else can read them.</p>
     </div>
   </div>

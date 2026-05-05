@@ -143,9 +143,11 @@ const API = {
 window.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('jtw_token');
   const user  = localStorage.getItem('jtw_user');
-  if (token && user) {
-    authToken   = token;
-    currentUser = JSON.parse(user);
+  if (user) {
+    const parsed = JSON.parse(user);
+    // Accept both JWT users and guests
+    authToken   = token || null;
+    currentUser = parsed;
     showSplash();
   } else {
     showAuthScreen();
@@ -176,17 +178,29 @@ async function handleLogin(e) {
   btn.textContent = 'Signing in…'; btn.disabled = true;
   err.classList.add('hidden');
 
-  const res = await API.post('/auth/login', {
-    email:    document.getElementById('loginEmail').value.trim(),
-    password: document.getElementById('loginPassword').value,
-  });
+  try {
+    const res = await API.post('/auth/login', {
+      email:    document.getElementById('loginEmail').value.trim(),
+      password: document.getElementById('loginPassword').value,
+    });
 
-  if (res.error) {
-    err.textContent = res.error; err.classList.remove('hidden');
+    if (res.error) {
+      // If server is unavailable, offer guest mode
+      if (res.error.toLowerCase().includes('server') || res.error.toLowerCase().includes('network')) {
+        err.textContent = 'Server unavailable — use "Continue as Guest" below to use the app offline.';
+      } else {
+        err.textContent = res.error;
+      }
+      err.classList.remove('hidden');
+      btn.textContent = 'Sign In →'; btn.disabled = false;
+    } else {
+      saveAuth(res.token, res.user);
+      showSplash();
+    }
+  } catch {
+    err.textContent = 'Cannot reach server — use "Continue as Guest" below.';
+    err.classList.remove('hidden');
     btn.textContent = 'Sign In →'; btn.disabled = false;
-  } else {
-    saveAuth(res.token, res.user);
-    showSplash();
   }
 }
 
@@ -197,19 +211,53 @@ async function handleRegister(e) {
   btn.textContent = 'Creating…'; btn.disabled = true;
   err.classList.add('hidden');
 
-  const res = await API.post('/auth/register', {
-    name:     document.getElementById('regName').value.trim(),
-    email:    document.getElementById('regEmail').value.trim(),
-    password: document.getElementById('regPassword').value,
-  });
+  try {
+    const res = await API.post('/auth/register', {
+      name:     document.getElementById('regName').value.trim(),
+      email:    document.getElementById('regEmail').value.trim(),
+      password: document.getElementById('regPassword').value,
+    });
 
-  if (res.error) {
-    err.textContent = res.error; err.classList.remove('hidden');
+    if (res.error) {
+      if (res.error.toLowerCase().includes('server') || res.error.toLowerCase().includes('network')) {
+        err.textContent = 'Server unavailable — use "Continue as Guest" below to use the app offline.';
+      } else {
+        err.textContent = res.error;
+      }
+      err.classList.remove('hidden');
+      btn.textContent = 'Create Account →'; btn.disabled = false;
+    } else {
+      saveAuth(res.token, res.user);
+      showSplash();
+    }
+  } catch {
+    err.textContent = 'Cannot reach server — use "Continue as Guest" below.';
+    err.classList.remove('hidden');
     btn.textContent = 'Create Account →'; btn.disabled = false;
-  } else {
-    saveAuth(res.token, res.user);
-    showSplash();
   }
+}
+
+// ── GUEST LOGIN (no server needed) ───────────────────────────────────────
+function handleGuest(e) {
+  e.preventDefault();
+  const name = document.getElementById('guestName').value.trim();
+  if (!name) return;
+
+  // Create a local guest user — no token, data stays in localStorage
+  const guestUser = {
+    _id:      'guest_' + Date.now(),
+    name,
+    email:    '',
+    role:     'user',
+    isActive: false,
+    isGuest:  true,
+  };
+
+  authToken   = null;   // no JWT — API calls gracefully fail, localStorage is used
+  currentUser = guestUser;
+  localStorage.setItem('jtw_user', JSON.stringify(guestUser));
+  localStorage.removeItem('jtw_token');
+  showSplash();
 }
 
 function saveAuth(token, user) {
