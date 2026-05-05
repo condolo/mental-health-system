@@ -49,14 +49,27 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-/* ── Connect to MongoDB & start ── */
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection failed:', err.message);
-    process.exit(1);
-  });
+/* ── Start server (MongoDB optional) ── */
+const PORT = process.env.PORT || 3000;
+
+function startServer() {
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
+
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI)
+    .then(() => {
+      console.log('✅ Connected to MongoDB');
+      startServer();
+    })
+    .catch(err => {
+      console.error('⚠️  MongoDB connection failed:', err.message);
+      console.log('▶️  Starting in static-only mode (API features unavailable)');
+      startServer();
+    });
+} else {
+  console.log('ℹ️  MONGODB_URI not set — running in static-only mode');
+  console.log('   The app UI will load and work with localStorage.');
+  console.log('   Set MONGODB_URI in your environment to enable full features.');
+  startServer();
+}
