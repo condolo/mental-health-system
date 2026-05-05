@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════
-   EMBRACING THE JOURNEY WITHIN — SERVER v2.0
+   EMBRACING THE JOURNEY WITHIN — SERVER v2.1
    ══════════════════════════════════════════════════════════════ */
 'use strict';
 require('dotenv').config();
@@ -25,11 +25,13 @@ app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders
 app.use(express.static(path.join(__dirname)));
 
 /* ── API Routes ── */
-app.use('/api/auth',      require('./routes/auth'));
-app.use('/api/entries',   require('./routes/entries'));
-app.use('/api/events',    require('./routes/events'));
-app.use('/api/analytics', require('./routes/analytics'));
-app.use('/api/admin',     require('./routes/admin'));
+app.use('/api/auth',         require('./routes/auth'));
+app.use('/api/entries',      require('./routes/entries'));
+app.use('/api/events',       require('./routes/events'));
+app.use('/api/analytics',    require('./routes/analytics'));
+app.use('/api/admin',        require('./routes/admin'));
+app.use('/api/chat',         require('./routes/chat'));
+app.use('/api/availability', require('./routes/availability'));
 
 /* ── Admin dashboard ── */
 app.get('/admin', (req, res) =>

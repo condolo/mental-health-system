@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Journey Within</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="adminLogin">
+  <div class="al-card">
+    <div class="al-logo">🧠</div>
+    <h2>Admin Portal</h2>
+    <p>Journey Within — Therapist Dashboard</p>
+    <form onsubmit="adminLogin(event)">
+      <div class="al-field"><label>Email</label><input type="email" id="alEmail" required placeholder="admin@email.com"/></div>
+      <div class="al-field"><label>Password</label><input type="password" id="alPass" required placeholder="Password"/></div>
+      <p class="al-error hidden" id="alError"></p>
+      <button type="submit" class="al-btn" id="alBtn">Sign In →</button>
+    </form>
+    <p class="al-note">🔒 Admin access only. User journal data is never accessible here.</p>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="adminDash" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <span>🧠</span>
+      <span>Journey Within</span>
+    </div>
+    <nav class="sb-nav">
+      <a class="sb-link active" onclick="showPanel('overview')"      data-p="overview">📊 Overview</a>
+      <a class="sb-link"        onclick="showPanel('events')"        data-p="events">📅 Events</a>
+      <a class="sb-link"        onclick="showPanel('create')"        data-p="create">➕ Create Event</a>
+      <a class="sb-link"        onclick="showPanel('availability')"  data-p="availability">🗓️ Availability</a>
+      <a class="sb-link"        onclick="showPanel('chat')"          data-p="chat" id="sbChat">💬 Messages <span class="sb-badge hidden" id="sbChatBadge"></span></a>
+      <a class="sb-link"        onclick="showPanel('profile')"       data-p="profile">👩‍⚕️ My Profile</a>
+      <a class="sb-link"        onclick="showPanel('notify')"        data-p="notify">🔔 Notify Users</a>
+    </nav>
+    <button class="sb-logout" onclick="adminLogout()">🚪 Sign Out</button>
+  </aside>
+
+  <!-- Main content -->
+  <main class="adm-main">
+
+    <!-- OVERVIEW PANEL -->
+    <div id="panel-overview" class="panel active">
+      <h1 class="panel-title">Dashboard Overview</h1>
+      <p class="panel-sub">Anonymous aggregates — no private user data is ever shown here.</p>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card loading">Loading…</div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Daily Check-ins (Last 7 Days)</h3>
+        <canvas id="activityChart" height="100"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h3>Daily Active Users (Last 7 Days)</h3>
+        <canvas id="dauChart" height="100"></canvas>
+      </div>
+
+      <div class="agg-card" id="aggCard"></div>
+    </div>
+
+    <!-- EVENTS PANEL -->
+    <div id="panel-events" class="panel hidden">
+      <h1 class="panel-title">All Events &amp; Sessions</h1>
+      <div id="adminEventsList"><div class="adm-loading">Loading…</div></div>
+    </div>
+
+    <!-- CREATE EVENT PANEL -->
+    <div id="panel-create" class="panel hidden">
+      <h1 class="panel-title">Create New Event / Session</h1>
+      <p class="panel-sub">Once created, all users are automatically notified.</p>
+
+      <form class="create-form" onsubmit="createEvent(event)">
+        <div class="cf-row">
+          <div class="cf-field">
+            <label>Event Title *</label>
+            <input type="text" id="evTitle" required placeholder="e.g. Managing Anxiety in Daily Life"/>
+          </div>
+          <div class="cf-field">
+            <label>Therapist Name *</label>
+            <input type="text" id="evTherapist" required placeholder="Dr. Jane Smith"/>
+          </div>
+        </div>
+        <div class="cf-field full">
+          <label>Description *</label>
+          <textarea id="evDesc" rows="3" required placeholder="What will attendees learn or experience?"></textarea>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label>Date &amp; Time *</label>
+            <input type="datetime-local" id="evDate" required/>
+          </div>
+          <div class="cf-field">
+            <label>Duration (minutes)</label>
+            <input type="number" id="evDuration" value="60" min="15" max="180"/>
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label>Category</label>
+            <select id="evCategory">
+              <option value="mental-health-talk">💬 Mental Health Talk</option>
+              <option value="therapy-session">🧠 Therapy Session</option>
+              <option value="workshop">🛠️ Workshop</option>
+              <option value="support-group">🤝 Support Group</option>
+              <option value="meditation">🧘 Meditation</option>
+              <option value="webinar">💻 Webinar</option>
+            </select>
+          </div>
+          <div class="cf-field">
+            <label>Type</label>
+            <select id="evType" onchange="togglePricing(this.value)">
+              <option value="free">🆓 Free</option>
+              <option value="premium">💎 Premium (Paid)</option>
+            </select>
+          </div>
+        </div>
+        <div class="cf-row" id="pricingRow" style="display:none">
+          <div class="cf-field">
+            <label>Price ($)</label>
+            <input type="number" id="evPrice" value="0" min="0" step="0.01"/>
+          </div>
+          <div class="cf-field">
+            <label>Active-User Discount (%)</label>
+            <input type="number" id="evDiscount" value="20" min="0" max="100"/>
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label>Platform</label>
+            <input type="text" id="evPlatform" value="Zoom" placeholder="Zoom, Google Meet…"/>
+          </div>
+          <div class="cf-field">
+            <label>Capacity</label>
+            <input type="number" id="evCapacity" value="100" min="1"/>
+          </div>
+        </div>
+        <div class="cf-field full">
+          <label>Meeting Link (you can add this later)</label>
+          <input type="url" id="evLink" placeholder="https://zoom.us/j/…"/>
+        </div>
+        <div class="cf-field">
+          <label>Card Emoji</label>
+          <input type="text" id="evEmoji" value="🧠" maxlength="4" style="width:80px"/>
+        </div>
+
+        <p class="create-error hidden" id="createError"></p>
+        <button type="submit" class="adm-btn-primary" id="createBtn">
+          📅 Create Event &amp; Notify All Users
+        </button>
+      </form>
+    </div>
+
+    <!-- AVAILABILITY PANEL -->
+    <div id="panel-availability" class="panel hidden">
+      <h1 class="panel-title">Manage Availability</h1>
+      <p class="panel-sub">Add time slots for 1-to-1 sessions. Booked slots are hidden from users.</p>
+
+      <!-- Add slot form -->
+      <form class="create-form" onsubmit="addSlot(event)" style="margin-bottom:1.5rem;max-width:600px">
+        <div class="cf-row">
+          <div class="cf-field"><label>Date *</label><input type="date" id="slotDate" required/></div>
+          <div class="cf-field"><label>Start Time *</label><input type="time" id="slotStart" required/></div>
+          <div class="cf-field"><label>End Time *</label><input type="time" id="slotEnd" required/></div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field">
+            <label>Duration (min)</label>
+            <input type="number" id="slotDuration" value="60" min="15" max="180"/>
+          </div>
+          <div class="cf-field">
+            <label>Session Type</label>
+            <select id="slotType">
+              <option value="both">Both Online &amp; In-person</option>
+              <option value="online">Online Only</option>
+              <option value="in-person">In-person Only</option>
+            </select>
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field"><label>Location (in-person)</label><input type="text" id="slotLocation" placeholder="Room / address"/></div>
+          <div class="cf-field"><label>Meeting Link (online)</label><input type="url" id="slotLink" placeholder="https://zoom.us/j/…"/></div>
+        </div>
+        <p class="create-error hidden" id="slotError"></p>
+        <button type="submit" class="adm-btn-primary" id="addSlotBtn">➕ Add Availability Slot</button>
+      </form>
+
+      <!-- Upcoming sessions (booked) -->
+      <h3 class="panel-sub" style="font-size:0.95rem;font-weight:700;color:#1B4332;margin-bottom:0.5rem">Upcoming Sessions (Booked)</h3>
+      <div id="adminSessionsList"><div class="adm-loading">Loading…</div></div>
+
+      <!-- Available slots -->
+      <h3 class="panel-sub" style="font-size:0.95rem;font-weight:700;color:#1B4332;margin:1rem 0 0.5rem">Available Slots (Unbooked)</h3>
+      <div id="adminSlotsList"><div class="adm-loading">Loading…</div></div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div id="panel-chat" class="panel hidden">
+      <h1 class="panel-title">Messages</h1>
+      <p class="panel-sub">Private 1-to-1 conversations with your users. All messages are confidential.</p>
+
+      <div style="display:flex;gap:1rem;height:520px">
+        <!-- Conversation list -->
+        <div class="chat-convo-list" id="convoList"><div class="adm-loading">Loading…</div></div>
+
+        <!-- Active conversation -->
+        <div class="chat-convo-main" id="convoMain">
+          <div class="chat-empty-admin">
+            <span>💬</span>
+            <p>Select a conversation to start</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THERAPIST PROFILE PANEL -->
+    <div id="panel-profile" class="panel hidden">
+      <h1 class="panel-title">My Therapist Profile</h1>
+      <p class="panel-sub">This profile is shown to all users in the app. Toggle visibility with the "Make Public" switch.</p>
+
+      <form class="create-form" onsubmit="saveProfile(event)" style="max-width:700px">
+        <div class="cf-row">
+          <div class="cf-field"><label>Display Name</label><input type="text" id="pfName" placeholder="Dr. Jane Smith"/></div>
+          <div class="cf-field"><label>Title / Role</label><input type="text" id="pfTitle" placeholder="Licensed Clinical Psychologist"/></div>
+        </div>
+        <div class="cf-field full">
+          <label>Bio</label>
+          <textarea id="pfBio" rows="4" placeholder="Write a short introduction for your clients…"></textarea>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field"><label>Specializations (comma separated)</label><input type="text" id="pfSpecs" placeholder="Anxiety, Trauma, CBT"/></div>
+          <div class="cf-field"><label>Languages (comma separated)</label><input type="text" id="pfLangs" placeholder="English, Swahili"/></div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-field"><label>Location</label><input type="text" id="pfLocation" placeholder="Nairobi, Kenya"/></div>
+          <div class="cf-field"><label>Public Email (optional)</label><input type="email" id="pfEmail" placeholder="contact@therapy.com"/></div>
+        </div>
+        <div class="cf-field full"><label>Profile Photo URL</label><input type="url" id="pfPhoto" placeholder="https://…"/></div>
+
+        <div class="cf-field">
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer">
+            <input type="checkbox" id="pfPublic" style="width:18px;height:18px;accent-color:#2D6A4F"/>
+            Make my profile visible to all users
+          </label>
+        </div>
+
+        <p class="create-error hidden" id="profileError"></p>
+        <p class="notif-sent hidden" id="profileSaved">✅ Profile saved!</p>
+        <button type="submit" class="adm-btn-primary" id="saveProfileBtn">💾 Save Profile</button>
+      </form>
+    </div>
+
+    <!-- NOTIFY PANEL -->
+    <div id="panel-notify" class="panel hidden">
+      <h1 class="panel-title">Send Notification to All Users</h1>
+      <p class="panel-sub">Broadcast a message — it will appear in every user's notification bell.</p>
+      <form onsubmit="sendNotification(event)" class="notify-form">
+        <textarea id="notifMsg" rows="4" placeholder="Type your message here…" required maxlength="280"></textarea>
+        <p class="char-count" id="charCount">0 / 280</p>
+        <p class="notif-error hidden" id="notifError"></p>
+        <button type="submit" class="adm-btn-primary">🔔 Send to All Users</button>
+      </form>
+      <div class="notif-sent hidden" id="notifSent">✅ Notification sent successfully!</div>
+    </div>
+
+  </main>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

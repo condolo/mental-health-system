@@ -7,9 +7,66 @@
   <title>Embracing The Journey Within</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div id="app">
+
+  <!-- ═══════════════════════════════════════
+       AUTH SCREEN (Login / Register)
+  ═══════════════════════════════════════ -->
+  <div id="authScreen" class="hidden">
+    <div class="auth-bg">
+      <span class="particle p1">🌸</span><span class="particle p3">🌼</span>
+      <span class="particle p5">🌸</span><span class="particle p7">🌷</span>
+    </div>
+    <div class="auth-card">
+      <div class="auth-logo">🧠</div>
+      <h2 class="auth-title">Journey Within</h2>
+      <p class="auth-sub">Your private mental wellness space</p>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin"    onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab"        id="tabRegister" onclick="switchAuthTab('register')">Sign Up</button>
+      </div>
+
+      <!-- Login form -->
+      <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="your@email.com" required />
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Your password" required />
+        </div>
+        <p class="auth-error hidden" id="loginError"></p>
+        <button type="submit" class="btn-auth" id="loginBtn">Sign In →</button>
+      </form>
+
+      <!-- Register form -->
+      <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)">
+        <div class="auth-field">
+          <label>Full Name</label>
+          <input type="text" id="regName" placeholder="Your name" required />
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="your@email.com" required />
+        </div>
+        <div class="auth-field">
+          <label>Password <span style="font-weight:400;color:var(--text-light)">(min 6 chars)</span></label>
+          <input type="password" id="regPassword" placeholder="Create a password" required minlength="6" />
+        </div>
+        <p class="auth-error hidden" id="registerError"></p>
+        <button type="submit" class="btn-auth" id="registerBtn">Create Account →</button>
+      </form>
+
+      <p class="auth-privacy">🔒 Your journal entries are completely private — no one else can read them.</p>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════
        SPLASH SCREEN
@@ -64,6 +121,12 @@
         <span class="brand-leaf">🌿</span>
         <span class="brand-name">Journey Within</span>
       </div>
+      <!-- Notification bell -->
+      <button class="hdr-btn notif-btn" onclick="toggleNotifPanel()" title="Notifications" style="position:relative">
+        🔔
+        <span class="notif-badge hidden" id="notifBadge">0</span>
+      </button>
+
       <div class="hdr-progress" title="Today's progress">
         <svg class="prog-ring" viewBox="0 0 40 40">
           <circle class="ring-track" cx="20" cy="20" r="16"/>
@@ -91,8 +154,19 @@
         <a class="menu-link" onclick="goTo('selfcare')"><span>🌟</span>Self-Care</a>
         <a class="menu-link" onclick="goTo('stress')"><span>🌊</span>Stress & Coping</a>
         <a class="menu-link" onclick="goTo('reflection')"><span>📝</span>My Reflection</a>
-        <a class="menu-link" onclick="goTo('history')"><span>📅</span>My History</a>
+        <a class="menu-link" onclick="goTo('history')"><span>📖</span>My Journal</a>
+        <a class="menu-link" onclick="goTo('events')"><span>📅</span>Events &amp; Sessions</a>
+        <a class="menu-link" onclick="goTo('bookings')"><span>🎟️</span>My Bookings</a>
+        <a class="menu-link" onclick="goTo('sessions')"><span>🩺</span>My Sessions</a>
+        <a class="menu-link" onclick="goTo('insights')"><span>📊</span>My Insights</a>
+        <a class="menu-link" onclick="goTo('therapist')"><span>👩‍⚕️</span>My Therapist</a>
+        <a class="menu-link" id="menuChatLink" onclick="goTo('chat')" style="position:relative">
+          <span>💬</span>Chat
+          <span class="menu-chat-badge hidden" id="menuChatBadge"></span>
+        </a>
+        <a class="menu-link menu-link-danger" onclick="logout()"><span>🚪</span>Sign Out</a>
       </div>
+      <p class="menu-user" id="menuUserName"></p>
       <p class="menu-footer">"Small steps lead to big changes."</p>
     </nav>
 
@@ -372,7 +446,159 @@
         </div>
       </section>
 
+      <!-- EVENTS -->
+      <section id="sec-events" class="sec">
+        <div class="sec-hero teal-palette">
+          <span class="sec-icon">📅</span>
+          <h2>Upcoming Sessions</h2>
+          <p>Live events, talks &amp; therapy sessions — book your spot</p>
+        </div>
+
+        <div class="active-badge-wrap" id="activeBadgeWrap" style="display:none">
+          <div class="active-badge">
+            <span>⭐ Active Member</span>
+            <span class="discount-code" id="myDiscountCode"></span>
+            <span class="discount-hint">Auto-applied on premium bookings</span>
+          </div>
+        </div>
+
+        <div id="eventsList"><div class="loading-msg">Loading events…</div></div>
+
+        <div class="sec-nav single">
+          <button class="btn-back" onclick="goTo('dashboard')">← Back to Home</button>
+        </div>
+      </section>
+
+      <!-- MY BOOKINGS -->
+      <section id="sec-bookings" class="sec">
+        <div class="sec-hero blue-palette">
+          <span class="sec-icon">🎟️</span>
+          <h2>My Bookings</h2>
+          <p>Your confirmed sessions &amp; events</p>
+        </div>
+        <div id="bookingsList"><div class="loading-msg">Loading…</div></div>
+        <div class="sec-nav single">
+          <button class="btn-back" onclick="goTo('events')">← Back to Events</button>
+        </div>
+      </section>
+
+      <!-- INSIGHTS -->
+      <section id="sec-insights" class="sec">
+        <div class="sec-hero plum-palette">
+          <span class="sec-icon">📊</span>
+          <h2>My Insights</h2>
+          <p>Your wellness trends — daily &amp; weekly</p>
+        </div>
+
+        <!-- Daily insight -->
+        <div class="insight-block" id="dailyInsightBlock">
+          <h3 class="insight-title">Today's Insight</h3>
+          <div id="dailyInsightContent"><div class="loading-msg">Loading…</div></div>
+        </div>
+
+        <!-- Weekly report -->
+        <div class="insight-block" id="weeklyInsightBlock">
+          <div class="insight-title-row">
+            <h3 class="insight-title">This Week's Report</h3>
+            <button class="btn-pdf" id="btnDownloadPdf" onclick="downloadWeeklyPDF()" title="Download PDF Report">
+              📄 Download Report
+            </button>
+          </div>
+          <div id="weeklyInsightContent"><div class="loading-msg">Loading…</div></div>
+          <canvas id="weeklyChart" style="margin-top:1rem;max-height:220px"></canvas>
+        </div>
+
+        <div class="sec-nav single">
+          <button class="btn-back" onclick="goTo('dashboard')">← Home</button>
+        </div>
+      </section>
+
+      <!-- MY SESSIONS (with therapist) -->
+      <section id="sec-sessions" class="sec">
+        <div class="sec-hero green-palette">
+          <span class="sec-icon">🩺</span>
+          <h2>My Sessions</h2>
+          <p>Your 1-to-1 sessions with your therapist</p>
+        </div>
+
+        <div class="session-tabs">
+          <button class="stab active" id="stabBook"  onclick="switchSessionTab('book')">Book a Session</button>
+          <button class="stab"        id="stabMine"  onclick="switchSessionTab('mine')">My Sessions</button>
+        </div>
+
+        <!-- Book a slot -->
+        <div id="sessionBookPane">
+          <div class="availability-notice">
+            <span>🔒</span>
+            <span>All sessions are strictly confidential. Information shared will not be disclosed without your consent, except as required by law.</span>
+          </div>
+          <div id="availabilityList"><div class="loading-msg">Loading available slots…</div></div>
+        </div>
+
+        <!-- My booked sessions -->
+        <div id="sessionMinePane" class="hidden">
+          <div id="mySessionsList"><div class="loading-msg">Loading…</div></div>
+        </div>
+
+        <div class="sec-nav single">
+          <button class="btn-back" onclick="goTo('therapist')">← Therapist Profile</button>
+        </div>
+      </section>
+
+      <!-- THERAPIST PROFILE -->
+      <section id="sec-therapist" class="sec">
+        <div class="sec-hero teal-palette">
+          <span class="sec-icon">👩‍⚕️</span>
+          <h2>Your Therapist</h2>
+          <p>Here to support your journey</p>
+        </div>
+        <div id="therapistProfileContent"><div class="loading-msg">Loading profile…</div></div>
+        <div class="sec-nav single">
+          <button class="btn-back" onclick="goTo('dashboard')">← Home</button>
+        </div>
+      </section>
+
+      <!-- CHAT -->
+      <section id="sec-chat" class="sec">
+        <div class="sec-hero blue-palette">
+          <span class="sec-icon">💬</span>
+          <h2>Private Chat</h2>
+          <p>Secure &amp; confidential — only you and your therapist</p>
+        </div>
+
+        <div class="chat-notice">
+          <span>🔒</span>
+          <span>This conversation is private and confidential. Messages are visible only to you and your therapist. No content is shared with third parties.</span>
+        </div>
+
+        <div class="chat-window" id="chatWindow">
+          <div class="loading-msg">Loading messages…</div>
+        </div>
+
+        <div class="chat-input-row">
+          <textarea class="chat-input" id="chatInput" rows="2"
+            placeholder="Type your message…" maxlength="2000"
+            onkeydown="chatKeydown(event)"></textarea>
+          <button class="btn-send" onclick="sendChatMessage()">Send ↑</button>
+        </div>
+        <p class="chat-hint">Press Enter to send · Shift+Enter for new line</p>
+
+        <div class="sec-nav single">
+          <button class="btn-back" onclick="goTo('therapist')">← Therapist Profile</button>
+        </div>
+      </section>
+
     </div><!-- /sectionsWrap -->
+
+    <!-- NOTIFICATION PANEL -->
+    <div id="notifPanel" class="notif-panel hidden">
+      <div class="notif-header">
+        <span>🔔 Notifications</span>
+        <button onclick="markNotifsRead()">Mark all read</button>
+      </div>
+      <div id="notifList"><div class="loading-msg">Loading…</div></div>
+    </div>
+    <div id="notifOverlay" class="menu-overlay" onclick="closeNotifPanel()"></div>
 
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
@@ -384,17 +610,18 @@
         <span class="nav-ico">💭</span>
         <span class="nav-lbl">Mood</span>
       </button>
-      <button class="nav-item" onclick="goTo('selfcare')" data-s="selfcare">
-        <span class="nav-ico">🌟</span>
-        <span class="nav-lbl">Care</span>
-      </button>
-      <button class="nav-item" onclick="goTo('reflection')" data-s="reflection">
-        <span class="nav-ico">📝</span>
-        <span class="nav-lbl">Reflect</span>
-      </button>
-      <button class="nav-item" onclick="goTo('history')" data-s="history">
+      <button class="nav-item" onclick="goTo('events')" data-s="events">
         <span class="nav-ico">📅</span>
-        <span class="nav-lbl">Journal</span>
+        <span class="nav-lbl">Events</span>
+      </button>
+      <button class="nav-item" onclick="goTo('insights')" data-s="insights">
+        <span class="nav-ico">📊</span>
+        <span class="nav-lbl">Insights</span>
+      </button>
+      <button class="nav-item" onclick="goTo('chat')" data-s="chat" style="position:relative">
+        <span class="nav-ico">💬</span>
+        <span class="nav-lbl">Chat</span>
+        <span class="nav-chat-badge hidden" id="navChatBadge"></span>
       </button>
     </nav>
 
